@@ -1,60 +1,47 @@
 import * as THREE from "three";
 
-import { Vector3 } from '../types';
+import { Vector3, Vector2, Texture } from '../types';
 
-export function fromDegrees(degrees : number) : number {
+export const fromDegrees = (degrees : number) : number => {
   return degrees * Math.PI / 180;
 }
 
-// export function rotate(mesh : THREE.Mesh, axis : Vector3, angle : number) : THREE.Mesh {
-//   // return mesh.rotation.set(new THREE.Vector3(axis.x, axis.y, axis.z), fromDegrees(angle));
-//   mesh.rotateOnAxis(new THREE.Vector3(axis.x, axis.y, axis.z), fromDegrees(angle));
-//   return mesh;
-// }
-
-export function rotate<T extends THREE.Mesh | THREE.Group>(mesh : T, rotation : Vector3) : T {
-  // return mesh.rotation.set(new THREE.Vector3(axis.x, axis.y, axis.z), fromDegrees(angle));
+export const rotate = <T extends THREE.Mesh | THREE.Group>(mesh : T, rotation : Vector3) : T => {
   mesh.rotation.set(fromDegrees(rotation.x), fromDegrees(rotation.y), fromDegrees(rotation.z));
   return mesh;
 }
 
-// export function translate(mesh : THREE.Mesh, vector : Vector3) : THREE.Mesh {
-//   mesh.position.x += vector.x;
-//   mesh.position.y += vector.y;
-//   mesh.position.z += vector.z;
-//   return mesh;
-// }
-
-export function translate<T extends THREE.Mesh | THREE.Group>(mesh : T, vector : Vector3) : T {
+export const translate = <T extends THREE.Mesh | THREE.Group>(mesh : T, vector : Vector3) : T => {
   mesh.position.x += vector.x;
   mesh.position.y += vector.y;
   mesh.position.z += vector.z;
   return mesh;
 }
 
-export function group(meshes : THREE.Mesh[]) : THREE.Group {
+export const group = (meshes : THREE.Mesh[]) : THREE.Group => {
   const group = new THREE.Group();
   meshes.forEach(mesh => group.add(mesh));
   return group;
 }
 
-export function cameraLook(camera : THREE.Camera) : Vector3 {
+export const cameraLook = (camera : THREE.Camera) : Vector3 => {
   const {x, y, z} = new THREE.Vector3( 0, 0, -1 ).applyQuaternion( camera.quaternion ).add( camera.position );
   return {x, y, z};
 }
 
-export function saveCamera(camera : THREE.Camera, id: number): void {
+export const saveCamera = (camera : THREE.Camera, id: number): void => {
   const _lookAt = cameraLook(camera);
   localStorage.setItem(`camera-${id}`, JSON.stringify({
     position: camera.position,
-    lookAt : _lookAt}));
-  console.log("camera position saved", camera.position, _lookAt);
+    lookAt : _lookAt
+  }));
 }
 
-export function loadCamera(camera : THREE.Camera, id: number) : void {
-  let _camera
+export const loadCamera = (camera : THREE.Camera, id: number) : void => {
+  let _camera;
   try {
-    _camera = JSON.parse(localStorage.getItem(`camera-${id}`));
+    const saved = localStorage.getItem(`camera-${id}`);
+    _camera = saved ? JSON.parse(saved) : defaultCamera();
   } catch (e) {
     _camera = defaultCamera();
   }
@@ -68,3 +55,22 @@ const defaultCamera = () => ({
   position : { x: 5000, y:400,  z:10000},
   lookAt   : { x: 0,    y:1000, z:0 }
 })
+
+
+export const loadTexture = (textureDef : Texture) : THREE.Texture => {
+  let _texture = new THREE.TextureLoader().load(textureDef.url);
+  
+  _texture.wrapS = THREE.MirroredRepeatWrapping;
+  _texture.wrapT = THREE.MirroredRepeatWrapping;
+  const _textureScale = textureScale(textureDef.imageDimensions, textureDef.realDimensions);
+  _texture.repeat.set(_textureScale.x, _textureScale.y);
+  _texture.rotation = 0;
+  return _texture;
+}
+
+export const textureScale = (imageDimensions : Vector2, realDimensions : Vector2) : Vector2 => {
+  return { 
+    x : (realDimensions.x / imageDimensions.x),
+    y : (realDimensions.y / imageDimensions.y),
+  }
+}

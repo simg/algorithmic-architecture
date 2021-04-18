@@ -38,6 +38,8 @@ export default class App {
   moveBackward : boolean = false;
   moveLeft     : boolean = false;
   moveRight    : boolean = false;
+  moveUp       : boolean = false;
+  moveDown     : boolean = false;
   canJump      : boolean = false;
 
   prevTime : any = performance.now();
@@ -98,8 +100,8 @@ export default class App {
 
     const things = buildingScene();
     things.forEach(thing => this.add(thing));
-
-    this.renderer = new WebGLRenderer();
+ 
+    this.renderer = new WebGLRenderer({antialias:true});
     this.renderer.setSize( this.wWidth, this.wHeight );
     document.body.appendChild( this.renderer.domElement );
 
@@ -170,6 +172,16 @@ export default class App {
         this.moveRight = true;
         break;
 
+      case '33': //pg up
+      case '69': // e
+        this.moveUp = true;
+        break;
+
+      case '34': //pg up
+      case '67': // c
+        this.moveDown = true;
+        break;
+
       case '32': // space
         if ( this.canJump === true ) this.velocity.y += 3500;
         this.canJump = false;
@@ -207,6 +219,16 @@ export default class App {
       case '68': // d
         this.moveRight = false;
         break;
+
+      case '33': //pg up
+      case '69': // e
+        this.moveUp = false;
+        break;
+
+      case '34': //pg up
+      case '67': // c
+        this.moveDown = false;
+        break;        
 
     }
 
@@ -250,32 +272,36 @@ export default class App {
             delta    = ( time - this.prevTime ) / 1000;
 
       this.velocity.x -= this.velocity.x * 10.0 * delta;
+      this.velocity.y -= this.velocity.y * 10.0 * delta;
       this.velocity.z -= this.velocity.z * 10.0 * delta;
 
-      this.velocity.y -= (9.8 * 1000 * delta); // 100.0 = mass
+      //this.velocity.y -= (9.8 * 1000 * delta); // 100.0 = mass
 
-      this.direction.z = Number( this.moveForward ) - Number( this.moveBackward );
       this.direction.x = Number( this.moveRight ) - Number( this.moveLeft );
+      this.direction.y = Number( this.moveDown ) - Number( this.moveUp );
+      this.direction.z = Number( this.moveForward ) - Number( this.moveBackward );
       this.direction.normalize(); // this ensures consistent movements in all directions
 
-      if ( this.moveForward || this.moveBackward ) this.velocity.z -= this.direction.z * 50000 * delta;
+      
       if ( this.moveLeft || this.moveRight ) this.velocity.x -= this.direction.x * 50000 * delta;
+      if ( this.moveUp || this.moveDown ) this.velocity.y -= this.direction.y * 50000 * delta;
+      if ( this.moveForward || this.moveBackward ) this.velocity.z -= this.direction.z * 50000 * delta;
 
-      if ( onObject === true ) {
-        this.velocity.y = Math.max( 0, this.velocity.y);
-        this.canJump = true;
-      }
+      // if ( onObject === true ) {
+      //   this.velocity.y = Math.max( 0, this.velocity.y);
+      //   this.canJump = true;
+      // }
 
       this.controls.moveRight( - this.velocity.x * delta );
       this.controls.moveForward( - this.velocity.z * delta );
 
       this.controls.getObject().position.y += ( this.velocity.y * delta ); // new behavior
 
-      if ( this.controls.getObject().position.y < 1800 ) {
-        this.velocity.y = 0;
-        this.controls.getObject().position.y = 1800;
-        this.canJump = true;
-      }
+      // if ( this.controls.getObject().position.y < 1200 ) {
+      //   this.velocity.y = 0;
+      //   this.controls.getObject().position.y = 1200;
+      //   this.canJump = true;
+      // }
 
       this.prevTime = time;
     }

@@ -19,6 +19,11 @@ export type Hole = {
 	position   : Vector3 ;
 }
 
+export type Light = {
+	position : Vector3 ;
+	
+}
+
 export type Wall = {
 	dimensions : Vector3 ;
   // material   : Material ;
@@ -27,18 +32,19 @@ export type Wall = {
     imageDimensions : Vector2 ;
     realDimensions  : Vector2 ;
   }
-	color      : number   ;
-	holes      : Hole[]   ;
+  color       : number ;
+  edgeColor   : number ;
+  holes       : Hole[] ;
 }
 
-export function textureScale(imageDimensions : Vector2, realDimensions : Vector2) : Vector2 {
+export const textureScale = (imageDimensions : Vector2, realDimensions : Vector2) : Vector2 => {
   return { 
     x : (realDimensions.x / imageDimensions.x),
     y : (realDimensions.y / imageDimensions.y),
   }
 }
 
-export function wall(wall : Wall) : THREE.Mesh {
+export const wall = (wall : Wall) : THREE.Mesh => {
 
   let texture;
   if (wall.texture) {
@@ -72,17 +78,17 @@ export function wall(wall : Wall) : THREE.Mesh {
   let meshResult = CSG.toMesh(bspWall, _wall.matrix);
 
 	// Set the results material to the material of the first cube.
-	meshResult.material = _wall.material;
+  meshResult.material = _wall.material;
+  
+  const wireframe = new THREE.LineSegments( 
+    new THREE.EdgesGeometry( meshResult.geometry ), 
+    new THREE.LineBasicMaterial( { color: wall.edgeColor } )
+  );
+  meshResult.add(wireframe);
 
 	return meshResult;
 }
 
-
-
-
-
-
 export type Component = {
 	name : string ;
-
 } 

@@ -21,3 +21,9 @@ export type Rotation = {
   axis     : Measure ;
   angle    : number ;
 }
+
+export type Texture = {
+  url             : string ;
+  imageDimensions : Vector2 ;
+  realDimensions  : Vector2 ;
+}
