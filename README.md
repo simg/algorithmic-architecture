@@ -1,6 +1,10 @@
 # Algorithmic Architecture Demo
 Designing buildings with code
 
+## Demo
+
+https://simg.github.io/algorithmic-architecture/
+
 ### Quick start
 **Node version >= 8.0 (recommended 10.6.0) and NPM >= 5 (recommended 6.1.0)**
 
