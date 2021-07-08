@@ -21,7 +21,6 @@ export type Hole = {
 
 export type Light = {
 	position : Vector3 ;
-	
 }
 
 export type Wall = {

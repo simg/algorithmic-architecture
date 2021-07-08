@@ -186,9 +186,32 @@ export default class App {
         if ( this.canJump === true ) this.velocity.y += 3500;
         this.canJump = false;
         break;
-      case 'c49': // ctrl-1
-        saveCamera(this.camera, 1);
+      case '49': // 1
+      case '50': // 2
+      case '51': // 3
+      case '52': // 4
+      case '53': // 5
+      case '54': // 6
+      case '55': // 7
+      case '56': // 8
+      case '57': { // 9
+        const camNo = (parseInt(_keymap) - 48);
+        loadCamera(this.camera, camNo);
         break;
+      }        
+      case 'c49': // ctrl-1
+      case 'c50': // ctrl-2
+      case 'c51': // ctrl-3
+      case 'c52': // ctrl-4
+      case 'c53': // ctrl-5
+      case 'c54': // ctrl-6
+      case 'c55': // ctrl-7
+      case 'c56': // ctrl-8
+      case 'c57': { // ctrl-9
+        const camNo = (parseInt(`${_keymap.match(/\d+/g)}`) - 48);
+        saveCamera(this.camera, camNo);
+        break;
+      }
       default:
         console.log("unrecognised keycode", _keymap);
     }
@@ -271,9 +294,11 @@ export default class App {
             time     = performance.now(),
             delta    = ( time - this.prevTime ) / 1000;
 
-      this.velocity.x -= this.velocity.x * 10.0 * delta;
-      this.velocity.y -= this.velocity.y * 10.0 * delta;
-      this.velocity.z -= this.velocity.z * 10.0 * delta;
+      const frictionCoefficient = 30 * delta;
+
+      this.velocity.x -= this.velocity.x * frictionCoefficient;
+      this.velocity.y -= this.velocity.y * frictionCoefficient;
+      this.velocity.z -= this.velocity.z * frictionCoefficient;
 
       //this.velocity.y -= (9.8 * 1000 * delta); // 100.0 = mass
 
@@ -282,10 +307,11 @@ export default class App {
       this.direction.z = Number( this.moveForward ) - Number( this.moveBackward );
       this.direction.normalize(); // this ensures consistent movements in all directions
 
+      const acclerationCoefficient = 700000 * delta;
       
-      if ( this.moveLeft || this.moveRight ) this.velocity.x -= this.direction.x * 50000 * delta;
-      if ( this.moveUp || this.moveDown ) this.velocity.y -= this.direction.y * 50000 * delta;
-      if ( this.moveForward || this.moveBackward ) this.velocity.z -= this.direction.z * 50000 * delta;
+      if ( this.moveLeft || this.moveRight )       this.velocity.x -= this.direction.x * acclerationCoefficient;
+      if ( this.moveUp || this.moveDown )          this.velocity.y -= this.direction.y * acclerationCoefficient;
+      if ( this.moveForward || this.moveBackward ) this.velocity.z -= this.direction.z * acclerationCoefficient;
 
       // if ( onObject === true ) {
       //   this.velocity.y = Math.max( 0, this.velocity.y);
